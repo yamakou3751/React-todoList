@@ -1,73 +1,85 @@
 import "./styles.css";
 import React, { useState } from "react";
-import { InputTodo } from "./components/InputTodo";
-import { IncompleteTodos } from "./components/IncompleteTodos";
-import { CompleteTodos } from "./components/CompleteTodos";
 
 export const App = () => {
-  const [todoText, setTodoText] = useState("");
-  const [incompleteTodos, setInCompleteTodos] = useState([]);
-  const [completeTodos, setCompleteTodos] = useState([]);
+  //state定義エリア
+  const [inputTodo, setInputTodo] = useState('')
+  const [incompleteTodos, updateIncompleteTodos] = useState(['あああ', 'いいいい'])
+  const [completeTodos, updateCompleteTodos] = useState(['ううううう'])
 
-  const onChangeTodoText = (e) => {
-    setTodoText(e.target.value);
-  };
+  // 関数エリア
+  //入力値取得
+  const InputTodos = (e) => {
+    setInputTodo(e.target.value)
+  }
+  //追加ボタン⇒未完了エリアにstate追加
+  const onClickInputTodos = () => {
+    if (!inputTodo) {return}
+    //incompletetodosのコピーにinputTodoからきたTODOを追加し更新
+    const newIncompleteTodos = [...incompleteTodos, inputTodo]
+    updateIncompleteTodos(newIncompleteTodos)
+    setInputTodo('')
+  }
 
-  const onClickInput = () => {
-    if (todoText === "") return;
-    const newTodo = [...incompleteTodos, todoText];
-    setInCompleteTodos(newTodo);
-    setTodoText("");
-  };
+  //未完了エリア削るよ関数（リファクタリング）
+  const incompleteSlice = (index) => {
+    const newIncompleteTodos = [...incompleteTodos]
+    newIncompleteTodos.splice(index, 1)
+    updateIncompleteTodos(newIncompleteTodos)
+  }
 
   const onClickDelete = (index) => {
-    const newTodos = [...incompleteTodos];
-    newTodos.splice(index, 1);
-    setInCompleteTodos(newTodos);
-  };
+    incompleteSlice(index)
+  }
 
-  const onClickComplete = (index) => {
-    const newIncompleteTodos = [...incompleteTodos];
-    newIncompleteTodos.splice(index, 1);
+  const onClickToCompleteTodos = (index) => {
+    incompleteSlice(index)
 
-    const newCompleteTodos = [...completeTodos, incompleteTodos[index]];
-    setInCompleteTodos(newIncompleteTodos);
-    setCompleteTodos(newCompleteTodos);
-  };
+    const newCompleteTodos = [...completeTodos, incompleteTodos[index]]
+    updateCompleteTodos(newCompleteTodos)
+  }
 
-  const onClickBack = (index) => {
-    const newCompleteTodos = [...completeTodos];
-    newCompleteTodos.splice(index, 1);
-
-    const newIncompleteTodos = [...incompleteTodos, completeTodos[index]];
-    // alert(completeTodos);
-    setCompleteTodos(newCompleteTodos);
-    setInCompleteTodos(newIncompleteTodos);
-  };
+    const onClickToBack = (index) => {
+    const newCompleteTodos = [...completeTodos]
+    newCompleteTodos.splice(index, 1)
+    
+    const newIncompleteTodos = [...incompleteTodos, completeTodos[index]]
+    updateCompleteTodos(newCompleteTodos)
+    updateIncompleteTodos(newIncompleteTodos)
+    }
+ 
 
   return (
     <>
-      <InputTodo
-        todoText={todoText}
-        onChange={onChangeTodoText}
-        onClick={onClickInput}
-        disabled={incompleteTodos.length >= 5}
-      />
-
-      {incompleteTodos.length >= 5 && (
-        <p style={{ color: "red" }}>
-          登録出来るのはTODO5個までだよ～、消化しろ～
-        </p>
-      )}
-
-      <IncompleteTodos
-        todos={incompleteTodos}
-        onClickComplete={onClickComplete}
-        onClickDelete={onClickDelete}
-      />
-      <CompleteTodos todos={completeTodos} onClick={onClickBack} />
+      <div className="input-area">
+        <input placeholder='TODO入力' value={inputTodo} onChange={InputTodos} />
+        <button onClick={onClickInputTodos}>追加</button>
+      </div>
+      <div className="incomplete-area">
+        <p className="title">未完了</p>
+        <ul>
+          {incompleteTodos.map((todo, index) => {
+            return (
+          <div key={index} className="list-row">
+            <li>{todo}</li>
+            <button onClick={() =>{onClickToCompleteTodos(index)}}>完了</button>
+            <button onClick={() =>{onClickDelete(index)}} >削除</button>
+          </div>
+            )})}
+        </ul>
+      </div>
+      <div className="complete-area">
+        <p className="title">完了</p>
+        <ul>
+        {completeTodos.map((todo, index) => {
+            return (
+          <div key={index} className="list-row">
+            <li>{todo}</li>
+            <button onClick={() => {onClickToBack(index)}}>戻る</button>
+          </div>
+            )})}
+        </ul>
+      </div>
     </>
   );
 };
-
-// export default App
