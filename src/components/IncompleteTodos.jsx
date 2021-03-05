@@ -16,7 +16,7 @@ const IncompleteTodos = (props) => {
             )})}
         </ul>
       </div>
-  )
+  );
 }
 
 export default IncompleteTodos
